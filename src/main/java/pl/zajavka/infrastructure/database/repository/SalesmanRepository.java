@@ -26,10 +26,8 @@ public class SalesmanRepository implements SalesmanDAO {
 
     @Override
     public List<Salesman> findAvailable() {
-
         return salesmanJpaRepository.findAll().stream()
                 .map(salesmanEntityMapper::mapFromEntity)
                 .toList();
-
     }
 }

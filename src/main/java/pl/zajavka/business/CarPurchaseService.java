@@ -16,12 +16,15 @@ public class CarPurchaseService {
     private final SalesmanService salesmanService;
 
     public List<CarToBuy> availableCars() {
+
         return carService.findAvailableCars();
     }
 
-    public List<Salesman> availableSalesman(){
+
+    public List<Salesman> availableSalesmen(){
         return salesmanService.findAvailable();
     }
+
 
 //    private final FileDataPreparationService fileDataPreparationService;
 //    private final CustomerService customerService;

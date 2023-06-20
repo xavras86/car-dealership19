@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import pl.zajavka.business.dao.CarToBuyDAO;
 import pl.zajavka.domain.CarToBuy;
-import pl.zajavka.infrastructure.database.entity.CarToBuyEntity;
 import pl.zajavka.infrastructure.database.repository.jpa.CarToBuyJpaRepository;
 import pl.zajavka.infrastructure.database.repository.mapper.CarToBuyEntityMapper;
 

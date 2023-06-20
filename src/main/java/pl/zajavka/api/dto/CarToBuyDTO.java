@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pl.zajavka.domain.Invoice;
 
 import java.math.BigDecimal;
 
@@ -14,10 +13,10 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CarToBuyDTO {
 
-    String vin;
-    String brand;
-    String model;
-    Integer year;
-    String color;
-    BigDecimal price;
+   private String vin;
+   private String brand;
+   private String model;
+   private Integer year;
+   private String color;
+   private BigDecimal price;
 }

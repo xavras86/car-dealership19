@@ -13,6 +13,8 @@ public interface CarToBuyJpaRepository extends JpaRepository<CarToBuyEntity, Int
 
     Optional<CarToBuyEntity> findByVin(String vin);
 
+    //sprawdzić efekty obu zapytań
+
 //    @Query("""
 //            SELECT car FROM CarToBuyEntity car
 //            WHERE car.carId NOT IN (SELECT invoice.car.carToBuyId FROM InvoiceEntity Invoice)

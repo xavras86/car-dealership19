@@ -2,15 +2,26 @@ package pl.zajavka.business;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.zajavka.domain.Mechanic;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class CarServiceRequestService {
 
-//    private final FileDataPreparationService fileDataPreparationService;
+
+    private final MechanicService mechanicService;
 //    private final CarService carService;
 //    private final CustomerService customerService;
 //    private final CarServiceRequestDAO carServiceRequestDAO;
+
+    public List<Mechanic> availableMechanics() {
+        return mechanicService.findAvailable();
+    }
+
+
+
 //
 //    public void requestService() {
 //        Map<Boolean, List<CarServiceRequest>> serviceRequests = fileDataPreparationService.createCarServiceRequests().stream()
