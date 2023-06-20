@@ -89,7 +89,10 @@ public class ApplicationConfiguration implements WebMvcConfigurer, ApplicationCo
         configuration.setBaselineOnMigrate(true);
         configuration.setLocations(new Location("classpath:flyway/migrations"));
         configuration.setDataSource(dataSource());
-        return new Flyway(configuration);
+        configuration.setCleanDisabled(false);
+        Flyway flyway = new Flyway(configuration);
+        flyway.clean();
+        return flyway;
     }
 
     @Bean(destroyMethod = "close")

@@ -17,12 +17,16 @@ public interface CarToBuyJpaRepository extends JpaRepository<CarToBuyEntity, Int
 
 //    @Query("""
 //            SELECT car FROM CarToBuyEntity car
-//            WHERE car.carId NOT IN (SELECT invoice.car.carToBuyId FROM InvoiceEntity Invoice)
+//            WHERE car.carToBuyId NOT IN (SELECT invoice.car.carToBuyId FROM InvoiceEntity Invoice)
+
+//    SELECT car FROM CarToBuyEntity car
+//    LEFT JOIN FETCH car.invoice invoice
+//    WHERE invoice.car.carToBuyId IS NULL
 //            """)
     @Query("""
-            SELECT car FROM CarToBuyEntity car
-            LEFT JOIN FETCH car.invoice invoice
-            WHERE invoice.car.carToBuyId IS NULL
+    SELECT car FROM CarToBuyEntity car
+    LEFT JOIN FETCH car.invoice invoice
+    WHERE invoice.car.carToBuyId IS NULL
             """)
     List<CarToBuyEntity> findAvailableCars();
 }

@@ -2,73 +2,82 @@ package pl.zajavka.business;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.zajavka.domain.CarToBuy;
-import pl.zajavka.domain.Salesman;
+import org.springframework.transaction.annotation.Transactional;
+import pl.zajavka.domain.*;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class CarPurchaseService {
 
     private final CarService carService;
-
     private final SalesmanService salesmanService;
 
-    public List<CarToBuy> availableCars() {
+    private final CustomerService customerService;
 
+    public List<CarToBuy> availableCars() {
         return carService.findAvailableCars();
     }
 
-
-    public List<Salesman> availableSalesmen(){
+    public List<Salesman> availableSalesmen() {
         return salesmanService.findAvailable();
     }
 
+    @Transactional
+    public Invoice purchase(final CarPurchaseRequest request) {
+        return request.getExistingCustomerEmail().isBlank()
+                ? processFirstTimeToBuyCustomer(request)
+                : processNextTimeToBuyCustomer(request);
+    }
 
-//    private final FileDataPreparationService fileDataPreparationService;
-//    private final CustomerService customerService;
+    private Invoice processFirstTimeToBuyCustomer(CarPurchaseRequest request) {
+        CarToBuy car = carService.findCarToBuy(request.getCarVin());
+        Salesman salesman = salesmanService.findSalesman(request.getSalesmanPesel());
+        Invoice invoice = buildInvoice(car, salesman);
+        Customer customer = buildCustomer(request, invoice);
+        customerService.issueInvoice(customer);
+        return invoice;
+    }
 
-//
-//    public void purchase() {
-//        var firstTimeData = fileDataPreparationService.prepareFirstTimePurchaseData();
-//        var nextTimeData = fileDataPreparationService.prepareNextTimePurchaseData();
-//
-//        List<Customer> firstTimeCustomers = firstTimeData.stream()
-//            .map(this::createFirstTimeToBuyCustomer)
-//            .toList();
-//        firstTimeCustomers.forEach(customerService::issueInvoice);
-//
-//        List<Customer> nextTimeCustomers = nextTimeData.stream()
-//            .map(this::createNextTimeToBuyCustomer)
-//            .toList();
-//        nextTimeCustomers.forEach(customerService::issueInvoice);
-//    }
-//
-//    private Customer createFirstTimeToBuyCustomer(CarPurchaseRequestInputData inputData) {
-//        CarToBuy car = carService.findCarToBuy(inputData.getCarVin());
-//        Salesman salesman = salesmanService.findSalesman(inputData.getSalesmanPesel());
-//        Invoice invoice = buildInvoice(car, salesman);
-//
-//        return fileDataPreparationService.buildCustomer(inputData, invoice);
-//    }
-//
-//    private Customer createNextTimeToBuyCustomer(CarPurchaseRequestInputData inputData) {
-//        Customer existingCustomer = customerService.findCustomer(inputData.getCustomerEmail());
-//        CarToBuy car = carService.findCarToBuy(inputData.getCarVin());
-//        Salesman salesman = salesmanService.findSalesman(inputData.getSalesmanPesel());
-//        Invoice invoice = buildInvoice(car, salesman);
-//        Set<Invoice> existingInvoices = existingCustomer.getInvoices();
-//        existingInvoices.add(invoice);
-//        return existingCustomer.withInvoices(existingInvoices);
-//    }
-//
-//    private Invoice buildInvoice(CarToBuy car, Salesman salesman) {
-//        return Invoice.builder()
-//            .invoiceNumber(UUID.randomUUID().toString())
-//            .dateTime(OffsetDateTime.of(2025, 10, 1, 12, 0, 0, 0, ZoneOffset.UTC))
-//            .car(car)
-//            .salesman(salesman)
-//            .build();
-//    }
+    private Invoice processNextTimeToBuyCustomer(CarPurchaseRequest request) {
+        Customer existingCustomer = customerService.findCustomer(request.getExistingCustomerEmail());
+        CarToBuy car = carService.findCarToBuy(request.getCarVin());
+        Salesman salesman = salesmanService.findSalesman(request.getSalesmanPesel());
+        Invoice invoice = buildInvoice(car, salesman);
+        Set<Invoice> existingInvoices = existingCustomer.getInvoices();
+        existingInvoices.add(invoice);
+        customerService.issueInvoice(existingCustomer.withInvoices(existingInvoices));
+        return invoice;
+    }
+
+
+    private Invoice buildInvoice(CarToBuy car, Salesman salesman) {
+        return Invoice.builder()
+                .invoiceNumber(UUID.randomUUID().toString())
+                .dateTime(OffsetDateTime.of(2025, 10, 1, 12, 0, 0, 0, ZoneOffset.UTC))
+                .car(car)
+                .salesman(salesman)
+                .build();
+    }
+
+    private Customer buildCustomer(CarPurchaseRequest inputData, Invoice invoice) {
+        return Customer.builder()
+                .name(inputData.getCustomerName())
+                .surname(inputData.getCustomerSurname())
+                .phone(inputData.getCustomerPhone())
+                .email(inputData.getCustomerEmail())
+                .address(Address.builder()
+                        .country(inputData.getCustomerAddressCountry())
+                        .city(inputData.getCustomerAddressCity())
+                        .postalCode(inputData.getCustomerAddressPostalCode())
+                        .address(inputData.getCustomerAddressStreet())
+                        .build())
+                .invoices(Set.of(invoice))
+                .build();
+    }
 }
