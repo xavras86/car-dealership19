@@ -10,6 +10,7 @@ import pl.zajavka.domain.CarHistory;
 import pl.zajavka.domain.CarToBuy;
 import pl.zajavka.domain.CarToService;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,6 +57,16 @@ public class CarService {
     @Transactional
     public CarToService saveCarToService(CarToService car) {
         return carToServiceDAO.saveCarToService(car);
+    }
+
+    public List<CarToService> finAllCarsWithHistory() {
+        List<CarToService> allCars = carToServiceDAO.findAll();
+        log.info("Cars to show history: {[]}", allCars.size());
+        return allCars;
+    }
+
+    public CarHistory findCarHistoryByVin(String carVin) {
+        return carToServiceDAO.findCarHistoryByVin(carVin);
     }
 
     public void printCarHistory(String vin) {

@@ -9,6 +9,7 @@ import pl.zajavka.domain.exception.ProcessingException;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -17,8 +18,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class CarServiceRequestService {
 
-
     private final MechanicService mechanicService;
+
     private final CarService carService;
     private final CustomerService customerService;
     private final CarServiceRequestDAO carServiceRequestDAO;
@@ -26,6 +27,10 @@ public class CarServiceRequestService {
 
     public List<Mechanic> availableMechanics() {
         return mechanicService.findAvailable();
+    }
+
+    public List<CarServiceRequest> availableServiceRequests() {
+        return carServiceRequestDAO.findAvailable();
     }
 
 
@@ -61,7 +66,6 @@ public class CarServiceRequestService {
         existingCarServiceRequests.add(carServiceRequest);
         customerService.saveServiceRequest(customer.withCarServiceRequests(existingCarServiceRequests));
     }
-
     private void validate(String vin) {
         Set<CarServiceRequest> serviceRequests = carServiceRequestDAO.findActiveServiceRequestsByCarVin(vin);
         if(serviceRequests.size()==1) {
@@ -70,6 +74,7 @@ public class CarServiceRequestService {
             );
         }
     }
+
     private CarToService findInCarToBuyAndSaveInCarToService(CarToService car) {
         CarToBuy carToBuy = carService.findCarToBuy(car.getVin());
         return carService.saveCarToService(carToBuy);
@@ -80,7 +85,8 @@ public class CarServiceRequestService {
         CarToService car,
         Customer customer
     ) {
-        OffsetDateTime when = OffsetDateTime.of(2027, 1, 10, 10, 2, 10, 0, ZoneOffset.UTC);
+        OffsetDateTime when = OffsetDateTime.now(ZoneOffset.UTC);
+        //of(2027, 1, 10, 10, 2, 10, 0, ZoneOffset.UTC)
         return CarServiceRequest.builder()
             .carServiceRequestNumber(generateCarServiceRequestNumber(when))
             .receivedDateTime(when)
@@ -89,8 +95,7 @@ public class CarServiceRequestService {
             .car(car)
             .build();
     }
-
-        private String generateCarServiceRequestNumber(OffsetDateTime when) {
+    private String generateCarServiceRequestNumber(OffsetDateTime when) {
         return "%s.%s.%s-%s.%s.%s.%s".formatted(
             when.getYear(),
             when.getMonth().ordinal(),
@@ -101,6 +106,7 @@ public class CarServiceRequestService {
             randomInt(10, 100)
         );
     }
+
         @SuppressWarnings("SameParameterValue")
     private int randomInt(int min, int max) {
         return new Random().nextInt(max - min) + min;

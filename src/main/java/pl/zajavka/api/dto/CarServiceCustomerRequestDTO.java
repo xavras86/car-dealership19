@@ -34,8 +34,8 @@ public class CarServiceCustomerRequestDTO {
 
     public static CarServiceCustomerRequestDTO buildDefault() {
         return CarServiceCustomerRequestDTO.builder()
-                .existingCustomerEmail("alf.samochodowy@gmail.com")
-                .existingCarVin("1FTRFHGBD2354")
+                .existingCustomerEmail("alf.samochod@gmail.com")
+                .existingCarVin("1FT7X2B60FEA74019")
                 .customerComment("Olej cieknie mi na stopy")
                 .build();
     }
